@@ -35,19 +35,27 @@ export class ChatGateway
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
+  @SubscribeMessage('join_room')
+  handleJoinRoom(
+    @MessageBody() data: { userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(data.userId); // Cho user vào một "phòng" riêng dựa trên ID của họ
+    console.log(`User ${data.userId} joined their private room`);
+  }
+
   // Listens for "sendMessage" events from clients
   @SubscribeMessage('sendMessage')
   handleMessage(
     @MessageBody() data: { to: string; from: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    this.logger.log(`Message from ${data.from }: ${data.content}`);
+    this.logger.log(`Message from ${data.from}: ${data.content}`);
 
-    // Broadcast the message to ALL connected clients (including sender)
-    // this.server.emit('receiveMessage', {
-    //   sender: data.sender,
-    //   message: data.message,
-    //   timestamp: new Date().toISOString(),
-    // });
+    this.server.to(data.to).emit('receive_message', {
+      from: data.from,
+      content: data.content,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
