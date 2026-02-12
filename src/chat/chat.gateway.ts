@@ -38,16 +38,16 @@ export class ChatGateway
   // Listens for "sendMessage" events from clients
   @SubscribeMessage('sendMessage')
   handleMessage(
-    @MessageBody() data: { sender: string; message: string },
+    @MessageBody() data: { to: string; from: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    this.logger.log(`Message from ${data.sender}: ${data.message}`);
+    this.logger.log(`Message from ${data.from }: ${data.content}`);
 
     // Broadcast the message to ALL connected clients (including sender)
-    this.server.emit('receiveMessage', {
-      sender: data.sender,
-      message: data.message,
-      timestamp: new Date().toISOString(),
-    });
+    // this.server.emit('receiveMessage', {
+    //   sender: data.sender,
+    //   message: data.message,
+    //   timestamp: new Date().toISOString(),
+    // });
   }
 }
